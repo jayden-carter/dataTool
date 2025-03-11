@@ -21,10 +21,7 @@
         <!-- Metric Button (Dropdown) -->
         <div class="relative mt-5 inline-block">
             <button id="metricButton" class="bg-gray-500 text-white px-4 py-2 rounded w-32">Metric</button>
-            <div id="metricDropdown" class="absolute left-0 mt-2 bg-white shadow-md rounded hidden">
-                <button id="showProductChart" class="block w-full px-4 py-2 text-left hover:bg-gray-200">Item</button>
-                <button id="showTimeChart" class="block w-full px-4 py-2 text-left hover:bg-gray-200">Time</button>
-            </div>
+            <div id="metricDropdown" class="absolute left-0 mt-2 bg-white shadow-md rounded hidden"></div>
         </div>
 
         <!-- Options Button (Dropdown) -->
@@ -47,13 +44,13 @@
                 </thead>
                 <tbody id="top5Body"></tbody>
             </table>
-            <canvas id="salesByCategoryChart" class="bg-white p-4 rounded shadow hidden"></canvas>
-            <canvas id="salesByTimeChart" class="bg-white p-4 rounded shadow hidden"></canvas>
+            <canvas id="dynamicChart" class="bg-white p-4 rounded shadow hidden"></canvas>
         </div>
     </div>
 
     <script src="script.js"></script>
 </body>
+
 
 
 

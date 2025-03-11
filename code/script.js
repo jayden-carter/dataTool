@@ -1,35 +1,29 @@
 document.addEventListener("DOMContentLoaded", function () {
     const loadingMessage = document.getElementById("loadingMessage");
-    const productChartCanvas = document.getElementById("salesByCategoryChart");
-    const timeChartCanvas = document.getElementById("salesByTimeChart");
-    const top5Table = document.getElementById("top5Table");
-    const top5Body = document.getElementById("top5Body");
-
     const metricButton = document.getElementById("metricButton");
     const metricDropdown = document.getElementById("metricDropdown");
-    const productChartButton = document.getElementById("showProductChart");
-    const timeChartButton = document.getElementById("showTimeChart");
-
     const optionsButton = document.getElementById("optionsButton");
     const optionsDropdown = document.getElementById("optionsDropdown");
     const showTop5Button = document.getElementById("showTop5");
     const showGraphButton = document.getElementById("showGraph");
+    const top5Table = document.getElementById("top5Table");
+    const top5Body = document.getElementById("top5Body");
+    const dynamicChartCanvas = document.getElementById("dynamicChart");
 
-    let selectedMetric = "product"; // Default selection
+    let selectedMetric = null;
     let chartData = {};
+    let chartInstance = null;
 
-    // Hide elements initially
-    productChartCanvas.style.display = "none";
-    timeChartCanvas.style.display = "none";
+    // Hide initially
     top5Table.style.display = "none";
+    dynamicChartCanvas.style.display = "none";
 
     fetch("../data/coffee.json")
         .then(response => response.json())
         .then(data => {
             console.log("Coffee data loaded:", data);
-            visualizeData(data);
-
-            // Hide loading message once data is loaded
+            generateMetricsDropdown(data);
+            processData(data);
             loadingMessage.style.display = "none";
         })
         .catch(error => {
@@ -47,34 +41,55 @@ document.addEventListener("DOMContentLoaded", function () {
         optionsDropdown.classList.toggle("hidden");
     });
 
-    // Show Product Sales Chart
-    productChartButton.addEventListener("click", function () {
-        selectedMetric = "product";
-        metricButton.innerText = "Item";
-        metricDropdown.classList.add("hidden");
-    });
+    // Generate Metrics Dropdown Dynamically
+    function generateMetricsDropdown(data) {
+        const sampleRow = data[0]; // Get column names from first row
+        Object.keys(sampleRow).forEach(variable => {
+            let button = document.createElement("button");
+            button.innerText = variable;
+            button.className = "block w-full px-4 py-2 text-left hover:bg-gray-200";
+            button.addEventListener("click", function () {
+                selectedMetric = variable;
+                metricButton.innerText = variable;
+                metricDropdown.classList.add("hidden");
+            });
+            metricDropdown.appendChild(button);
+        });
+    }
 
-    // Show Time Sales Chart
-    timeChartButton.addEventListener("click", function () {
-        selectedMetric = "time";
-        metricButton.innerText = "Time";
-        metricDropdown.classList.add("hidden");
-    });
+    // Process Data and Prepare for Charts
+    function processData(data) {
+        chartData = {};
+        let sampleRow = data[0];
+
+        // Initialize empty objects for all variables
+        Object.keys(sampleRow).forEach(variable => {
+            chartData[variable] = {};
+        });
+
+        // Count occurrences for each variable
+        data.forEach(row => {
+            Object.keys(row).forEach(variable => {
+                let value = row[variable];
+                chartData[variable][value] = (chartData[variable][value] || 0) + 1;
+            });
+        });
+    }
 
     // Show Top 5 Chart (Table)
     showTop5Button.addEventListener("click", function () {
+        if (!selectedMetric) return alert("Please select a metric first.");
         optionsButton.innerText = "Chart";
         optionsDropdown.classList.add("hidden");
 
-        productChartCanvas.style.display = "none";
-        timeChartCanvas.style.display = "none";
         top5Table.style.display = "table";
+        dynamicChartCanvas.style.display = "none";
 
         let sortedData = Object.entries(chartData[selectedMetric])
             .sort((a, b) => b[1] - a[1]) // Sort descending
             .slice(0, 5); // Get top 5
 
-        top5Body.innerHTML = sortedData.map(item => 
+        top5Body.innerHTML = sortedData.map(item =>
             `<tr>
                 <td class="border border-gray-400 px-4 py-2">${item[0]}</td>
                 <td class="border border-gray-400 px-4 py-2">${item[1]}</td>
@@ -82,48 +97,31 @@ document.addEventListener("DOMContentLoaded", function () {
         ).join("");
     });
 
-    // Show Graph (Bar or Line)
+    // Show Graph (Bar Chart)
     showGraphButton.addEventListener("click", function () {
+        if (!selectedMetric) return alert("Please select a metric first.");
         optionsButton.innerText = "Graph";
         optionsDropdown.classList.add("hidden");
 
         top5Table.style.display = "none";
+        dynamicChartCanvas.style.display = "block";
 
-        if (selectedMetric === "product") {
-            productChartCanvas.style.display = "block";
-            timeChartCanvas.style.display = "none";
-        } else {
-            productChartCanvas.style.display = "none";
-            timeChartCanvas.style.display = "block";
+        let labels = Object.keys(chartData[selectedMetric]);
+        let values = Object.values(chartData[selectedMetric]);
+
+        // Destroy previous chart instance
+        if (chartInstance) {
+            chartInstance.destroy();
         }
-    });
 
-    function visualizeData(data) {
-        let productTypeCounts = {};
-        let salesByHour = Array(24).fill(0);
-
-        data.forEach(row => {
-            const productType = row.product_type;
-            productTypeCounts[productType] = (productTypeCounts[productType] || 0) + 1;
-
-            const hour = parseInt(row.transaction_time.split(":")[0]);
-            salesByHour[hour]++;
-        });
-
-        chartData = { product: productTypeCounts, time: salesByHour };
-
-        const productLabels = Object.keys(productTypeCounts);
-        const productValues = Object.values(productTypeCounts);
-
-        // Sales by Product Chart
-        const ctx1 = document.getElementById("salesByCategoryChart").getContext("2d");
-        new Chart(ctx1, {
+        const ctx = dynamicChartCanvas.getContext("2d");
+        chartInstance = new Chart(ctx, {
             type: "bar",
             data: {
-                labels: productLabels,
+                labels: labels,
                 datasets: [{
-                    label: "Most Sold Product Types",
-                    data: productValues,
+                    label: `Distribution of ${selectedMetric}`,
+                    data: values,
                     backgroundColor: "rgba(54, 162, 235, 0.5)",
                     borderColor: "rgba(54, 162, 235, 1)",
                     borderWidth: 1
@@ -131,26 +129,9 @@ document.addEventListener("DOMContentLoaded", function () {
             },
             options: { responsive: true, scales: { y: { beginAtZero: true } } }
         });
-
-        // Sales by Time Chart
-        const ctx2 = document.getElementById("salesByTimeChart").getContext("2d");
-        new Chart(ctx2, {
-            type: "line",
-            data: {
-                labels: Array.from({ length: 24 }, (_, i) => `${i}:00`),
-                datasets: [{
-                    label: "Sales by Hour",
-                    data: salesByHour,
-                    borderColor: "rgba(255, 99, 132, 1)",
-                    backgroundColor: "rgba(255, 99, 132, 0.2)",
-                    borderWidth: 2,
-                    fill: true
-                }]
-            },
-            options: { responsive: true, scales: { y: { beginAtZero: true } } }
-        });
-    }
+    });
 });
+
 
 
 

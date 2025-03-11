@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coffee Shop Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-5">
+    <div class="container mx-auto">
+        <h1 class="text-3xl font-bold mb-5">Coffee Shop Sales Dashboard</h1>
+
+        <!-- Loading Message -->
+        <p id="loadingMessage" class="text-center text-gray-600">Loading data...</p>
+
+        <input type="file" id="jsonFileInput" accept=".json" class="mb-5 p-2 border rounded">
+        <button onclick="loadJSONFile()" class="bg-blue-500 text-white px-4 py-2 rounded">Upload & Visualize</button>
+
+        <!-- Metric Button (Dropdown) -->
+        <div class="relative mt-5 inline-block">
+            <button id="metricButton" class="bg-gray-500 text-white px-4 py-2 rounded w-32">Metric</button>
+            <div id="metricDropdown" class="absolute left-0 mt-2 bg-white shadow-md rounded hidden">
+                <button id="showProductChart" class="block w-full px-4 py-2 text-left hover:bg-gray-200">Item</button>
+                <button id="showTimeChart" class="block w-full px-4 py-2 text-left hover:bg-gray-200">Time</button>
+            </div>
+        </div>
+
+        <!-- Options Button (Dropdown) -->
+        <div class="relative mt-5 inline-block">
+            <button id="optionsButton" class="bg-gray-500 text-white px-4 py-2 rounded w-32">Options</button>
+            <div id="optionsDropdown" class="absolute left-0 mt-2 bg-white shadow-md rounded hidden">
+                <button id="showTop5" class="block w-full px-4 py-2 text-left hover:bg-gray-200">Chart</button>
+                <button id="showGraph" class="block w-full px-4 py-2 text-left hover:bg-gray-200">Graph</button>
+            </div>
+        </div>
+
+        <!-- Chart/Table Display (Initially Hidden) -->
+        <div class="grid grid-cols-1 gap-5 mt-5">
+            <table id="top5Table" class="bg-white p-4 rounded shadow hidden w-full border-collapse border border-gray-400">
+                <thead>
+                    <tr class="bg-gray-200">
+                        <th class="border border-gray-400 px-4 py-2">Category</th>
+                        <th class="border border-gray-400 px-4 py-2">Count</th>
+                    </tr>
+                </thead>
+                <tbody id="top5Body"></tbody>
+            </table>
+            <canvas id="salesByCategoryChart" class="bg-white p-4 rounded shadow hidden"></canvas>
+            <canvas id="salesByTimeChart" class="bg-white p-4 rounded shadow hidden"></canvas>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+
+
+
+
+</html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coffee Shop Dashboard</title>
+    <title>Data Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
@@ -12,20 +12,21 @@
     <div class="container mx-auto">
         <h1 class="text-3xl font-bold mb-5">Coffee Shop Sales Dashboard</h1>
 
-        <!-- Loading Message -->
-        <p id="loadingMessage" class="text-center text-gray-600">Loading data...</p>
-
+        <!-- File Upload -->
         <input type="file" id="jsonFileInput" accept=".json" class="mb-5 p-2 border rounded">
-        <button onclick="loadJSONFile()" class="bg-blue-500 text-white px-4 py-2 rounded">Upload & Visualize</button>
+        <button id="loadFileButton" class="bg-blue-500 text-white px-4 py-2 rounded">Load Data</button>
+
+        <!-- Placeholder message -->
+        <p id="placeholderMessage" class="text-center text-gray-600 mt-5">Please upload a JSON file to begin.</p>
 
         <!-- Metric Button (Dropdown) -->
-        <div class="relative mt-5 inline-block">
+        <div class="relative mt-5 inline-block hidden" id="metricSection">
             <button id="metricButton" class="bg-gray-500 text-white px-4 py-2 rounded w-32">Metric</button>
             <div id="metricDropdown" class="absolute left-0 mt-2 bg-white shadow-md rounded hidden"></div>
         </div>
 
         <!-- Options Button (Dropdown) -->
-        <div class="relative mt-5 inline-block">
+        <div class="relative mt-5 inline-block hidden" id="optionsSection">
             <button id="optionsButton" class="bg-gray-500 text-white px-4 py-2 rounded w-32">Options</button>
             <div id="optionsDropdown" class="absolute left-0 mt-2 bg-white shadow-md rounded hidden">
                 <button id="showTop5" class="block w-full px-4 py-2 text-left hover:bg-gray-200">Chart</button>
@@ -50,6 +51,7 @@
 
     <script src="script.js"></script>
 </body>
+
 
 
 

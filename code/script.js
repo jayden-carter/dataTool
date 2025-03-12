@@ -1,5 +1,7 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const loadingMessage = document.getElementById("loadingMessage");
+    const jsonFileInput = document.getElementById("jsonFileInput");
+    const loadFileButton = document.getElementById("loadFileButton");
+    const placeholderMessage = document.getElementById("placeholderMessage");
     const metricButton = document.getElementById("metricButton");
     const metricDropdown = document.getElementById("metricDropdown");
     const optionsButton = document.getElementById("optionsButton");
@@ -9,27 +11,38 @@ document.addEventListener("DOMContentLoaded", function () {
     const top5Table = document.getElementById("top5Table");
     const top5Body = document.getElementById("top5Body");
     const dynamicChartCanvas = document.getElementById("dynamicChart");
+    const metricSection = document.getElementById("metricSection");
+    const optionsSection = document.getElementById("optionsSection");
 
     let selectedMetric = null;
     let chartData = {};
     let chartInstance = null;
 
-    // Hide initially
+    // Hide metric and options sections initially
+    metricSection.style.display = "none";
+    optionsSection.style.display = "none";
     top5Table.style.display = "none";
     dynamicChartCanvas.style.display = "none";
 
-    fetch("../data/coffee.json")
-        .then(response => response.json())
-        .then(data => {
-            console.log("Coffee data loaded:", data);
-            generateMetricsDropdown(data);
-            processData(data);
-            loadingMessage.style.display = "none";
-        })
-        .catch(error => {
-            loadingMessage.innerText = "Failed to load data!";
-            console.error("Error loading coffee.json:", error);
-        });
+    // Wait for file upload
+    loadFileButton.addEventListener("click", function () {
+        const file = jsonFileInput.files[0];
+        if (!file) {
+            alert("Please upload a JSON file first.");
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (event) {
+            const jsonData = JSON.parse(event.target.result);
+            placeholderMessage.style.display = "none"; // Hide placeholder message
+            metricSection.style.display = "inline-block"; // Show metric selection
+            optionsSection.style.display = "inline-block"; // Show options selection
+            generateMetricsDropdown(jsonData);
+            processData(jsonData);
+        };
+        reader.readAsText(file);
+    });
 
     // Toggle Metric Dropdown
     metricButton.addEventListener("click", function () {
@@ -43,7 +56,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Generate Metrics Dropdown Dynamically
     function generateMetricsDropdown(data) {
-        const sampleRow = data[0]; // Get column names from first row
+        metricDropdown.innerHTML = ""; // Clear existing options
+        const sampleRow = data[0];
         Object.keys(sampleRow).forEach(variable => {
             let button = document.createElement("button");
             button.innerText = variable;
@@ -62,12 +76,10 @@ document.addEventListener("DOMContentLoaded", function () {
         chartData = {};
         let sampleRow = data[0];
 
-        // Initialize empty objects for all variables
         Object.keys(sampleRow).forEach(variable => {
             chartData[variable] = {};
         });
 
-        // Count occurrences for each variable
         data.forEach(row => {
             Object.keys(row).forEach(variable => {
                 let value = row[variable];
@@ -86,8 +98,8 @@ document.addEventListener("DOMContentLoaded", function () {
         dynamicChartCanvas.style.display = "none";
 
         let sortedData = Object.entries(chartData[selectedMetric])
-            .sort((a, b) => b[1] - a[1]) // Sort descending
-            .slice(0, 5); // Get top 5
+            .sort((a, b) => b[1] - a[1]) 
+            .slice(0, 5); 
 
         top5Body.innerHTML = sortedData.map(item =>
             `<tr>
@@ -109,7 +121,6 @@ document.addEventListener("DOMContentLoaded", function () {
         let labels = Object.keys(chartData[selectedMetric]);
         let values = Object.values(chartData[selectedMetric]);
 
-        // Destroy previous chart instance
         if (chartInstance) {
             chartInstance.destroy();
         }
@@ -131,7 +142,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 });
-
 
 
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Dashboard</title>
+    <title>Cart Data</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
@@ -11,9 +11,8 @@
 <body class="bg-gray-100 p-5">
     <div class="container mx-auto">
         <h1 class="text-3xl font-bold mb-5">Data Dashboard</h1>
+
         <a href="login.html" class="text-blue-500 underline text-sm" onclick="localStorage.removeItem('loggedInUser')">Log out</a>
-
-
 
         <!-- File Upload -->
         <input type="file" id="jsonFileInput" accept=".json" class="mb-5 p-2 border rounded">

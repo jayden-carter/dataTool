@@ -18,6 +18,11 @@ document.addEventListener("DOMContentLoaded", function () {
     let chartData = {};
     let chartInstance = null;
 
+    const user = JSON.parse(localStorage.getItem('loggedInUser'));
+if (!user) {
+  window.location.href = "login.html"; // Force login
+}
+
     // Hide metric and options sections initially
     metricSection.style.display = "none";
     optionsSection.style.display = "none";

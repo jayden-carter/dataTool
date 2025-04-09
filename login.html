@@ -3,37 +3,44 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login | dataTool</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js"></script>
+  <script src="login.js"></script> <!-- Link to the login.js script -->
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
-  <div class="bg-white p-8 rounded shadow-md w-full max-w-md">
-    <h2 class="text-2xl font-bold mb-6 text-center">Welcome to dataTool</h2>
+<body>
+  <div class="flex justify-center items-center min-h-screen">
+    <div class="bg-white p-8 rounded shadow-md w-full max-w-md">
+      <h2 class="text-2xl font-bold mb-6 text-center">Login to dataTool</h2>
 
-    <div id="authToggle" class="flex justify-center mb-4 space-x-4">
-      <button onclick="toggleAuth('login')" class="text-blue-500 font-semibold">Login</button>
-      <button onclick="toggleAuth('signup')" class="text-gray-500">Sign Up</button>
+      <!-- Login Form -->
+      <form id="authForm">
+        <div class="mb-4">
+          <label class="block text-sm mb-1">Email</label>
+          <input type="email" id="email" class="w-full border rounded px-3 py-2" required />
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm mb-1">Password</label>
+          <input type="password" id="password" class="w-full border rounded px-3 py-2" required />
+        </div>
+        <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded">Log In</button>
+        
+        <!-- Google Sign-In Button -->
+        <div class="mt-4">
+          <button id="googleSignInBtn" class="w-full bg-red-500 text-white py-2 rounded">
+            Sign in with Google
+          </button>
+        </div>
+
+      </form>
+
+      <!-- Error Message -->
+      <p id="authMessage" class="text-center text-red-500 mt-4 hidden"></p>
+
+      <!-- Sign-up option -->
+      <p id="toggleSignup" onclick="toggleAuth('signup')" class="text-center text-blue-500 mt-4 cursor-pointer">Don't have an account? Sign Up</p>
     </div>
-
-    <form id="authForm">
-      <div id="nameField" class="mb-4 hidden">
-        <label class="block text-sm mb-1">Name</label>
-        <input type="text" id="name" class="w-full border rounded px-3 py-2" />
-      </div>
-      <div class="mb-4">
-        <label class="block text-sm mb-1">Email</label>
-        <input type="email" id="email" class="w-full border rounded px-3 py-2" required />
-      </div>
-      <div class="mb-6">
-        <label class="block text-sm mb-1">Password</label>
-        <input type="password" id="password" class="w-full border rounded px-3 py-2" required />
-      </div>
-      <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded">Continue</button>
-    </form>
-
-    <p id="authMessage" class="text-center text-red-500 mt-4 hidden"></p>
   </div>
-
-  <script src="auth.js"></script>
 </body>
 </html>

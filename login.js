@@ -1,11 +1,9 @@
-// Import the functions you need from the SDKs you need
+// Import the functions you need from the Firebase SDKs
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
 
-
-// Firebase Configuration
+// Firebase Configuration (use your own config values)
 const firebaseConfig = {
   apiKey: "AIzaSyDcacpYTrShmiUcGm8NgXucH6IRNlr3L5E",
   authDomain: "synq-data.firebaseapp.com",
@@ -16,56 +14,40 @@ const firebaseConfig = {
   measurementId: "G-2E8MH39H3E"
 };
 
-// Initialize Firebase
-const app = firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
+// Initialize Firebase using the modular API
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const auth = getAuth(app);
 
-// Handle login form submission (email/password)
-document.getElementById('authForm').addEventListener('submit', function (e) {
-  e.preventDefault();
+// Attach event listener for form submission
+document.getElementById("loginForm").addEventListener("submit", function(event) {
+  event.preventDefault();
   
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
-
-  // Sign in with Firebase Authentication
-  auth.signInWithEmailAndPassword(email, password)
+  // Get input values at the time of submission
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  
+  // Attempt to sign in with email and password
+  signInWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
+      // Successful login: retrieve the user object
       const user = userCredential.user;
-
-      // Store the user in localStorage
-      localStorage.setItem('loggedInUser', JSON.stringify(user));
-
+      console.log("User logged in:", user);
+      
+      // Store the user in localStorage (for session persistence)
+      localStorage.setItem("loggedInUser", JSON.stringify(user));
+      
       // Redirect to dashboard (index.html)
-      window.location.href = 'index.html';
+      window.location.href = "index.html";
     })
     .catch((error) => {
-      // Show error message
+      // Handle errors here
+      const errorCode = error.code;
       const errorMessage = error.message;
-      const messageEl = document.getElementById('authMessage');
-      messageEl.innerText = errorMessage;
-      messageEl.classList.remove('hidden');
-    });
-});
-
-// Google Sign-In logic
-document.getElementById('googleSignInBtn').addEventListener('click', function() {
-  const provider = new firebase.auth.GoogleAuthProvider();
-
-  auth.signInWithPopup(provider)
-    .then((result) => {
-      const user = result.user;
-
-      // Store the user in localStorage
-      localStorage.setItem('loggedInUser', JSON.stringify(user));
-
-      // Redirect to dashboard (index.html)
-      window.location.href = 'index.html';
-    })
-    .catch((error) => {
-      // Show error message if Google login fails
-      const errorMessage = error.message;
-      const messageEl = document.getElementById('authMessage');
-      messageEl.innerText = errorMessage;
-      messageEl.classList.remove('hidden');
+      console.error("Error [" + errorCode + "]: " + errorMessage);
+      // Optionally display the error message on the page by manipulating the DOM
+      const errorEl = document.getElementById('error');
+      errorEl.innerText = errorMessage;
+      errorEl.classList.remove('hidden');
     });
 });

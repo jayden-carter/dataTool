@@ -1,19 +1,22 @@
 // Import the functions you need from the Firebase SDKs
-import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js";
 
-// Your web app's Firebase configuration
+// Firebase Configuration (use your own config values)
 const firebaseConfig = {
-    apiKey: "AIzaSyAkpIDIHkV3YrkGm1jqHdOFu8fE_5yrffk",
-    authDomain: "datacartfront.firebaseapp.com",
-    projectId: "datacartfront",
-    storageBucket: "datacartfront.firebasestorage.app",
-    messagingSenderId: "544659950888",
-    appId: "1:544659950888:web:65f3f1ea9a3d634671941d"
+  apiKey: "AIzaSyDcacpYTrShmiUcGm8NgXucH6IRNlr3L5E",
+  authDomain: "synq-data.firebaseapp.com",
+  projectId: "synq-data",
+  storageBucket: "synq-data.firebasestorage.app",
+  messagingSenderId: "666582373055",
+  appId: "1:666582373055:web:48a69368feb8c16ab52c0a",
+  measurementId: "G-2E8MH39H3E"
 };
 
-// Initialize Firebase
+// Initialize Firebase using the modular API
 const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 const auth = getAuth(app);
 
 // Attach event listener for form submission

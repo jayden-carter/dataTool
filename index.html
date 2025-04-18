@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- Firebase App (the core Firebase SDK) -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<!-- Firebase Auth -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
@@ -301,6 +306,26 @@
   </style>
 </head>
 <body>
+  <script>
+    // 1) Your Firebase config (copy from your Firebase console)
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      // …the rest of your config…
+    };
+  
+    // 2) Initialize
+    firebase.initializeApp(firebaseConfig);
+  
+    // 3) Protect this page: if not logged in, redirect to login.html
+    firebase.auth().onAuthStateChanged(user => {
+      if (!user) {
+        // no user → send to login page
+        window.location.replace('login.html');
+      }
+      // if user IS logged in, do nothing and let the page render
+    });
+  </script>  
   <aside>
     <nav>
       <ul>
@@ -542,12 +567,6 @@ $(function() {
     });
   });
 });
-
-const user = JSON.parse(localStorage.getItem('loggedInUser'));
-if (!user) {
-  window.location.href = "login.html"; // Force login
-}
-
 
 
 </script>

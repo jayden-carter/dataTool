@@ -307,23 +307,41 @@
 </head>
 <body>
   <script>
-    // 1) Your Firebase config (copy from your Firebase console)
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+
+    // 1) Initialize Firebase
     const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-      // …the rest of your config…
+      apiKey: "AIzaSyDcacpYTrShmiUcGm8NgXucH6IRNlr3L5E",
+      authDomain: "synq-data.firebaseapp.com",
+      projectId: "synq-data",
+      storageBucket: "synq-data.firebasestorage.app",
+      messagingSenderId: "666582373055",
+      appId: "1:666582373055:web:48a69368feb8c16ab52c0a",
+      measurementId: "G-2E8MH39H3E"
     };
-  
-    // 2) Initialize
-    firebase.initializeApp(firebaseConfig);
-  
-    // 3) Protect this page: if not logged in, redirect to login.html
-    firebase.auth().onAuthStateChanged(user => {
-      if (!user) {
-        // no user → send to login page
-        window.location.replace('login.html');
-      }
       // if user IS logged in, do nothing and let the page render
+      const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // 2) Gatekeeper: redirect if not logged in
+    onAuthStateChanged(auth, user => {
+      if (!user) {
+        // Kick out anyone not signed in
+        window.location.replace("login.html");
+      }
+    });
+
+    // 3) Logout handler
+    document.getElementById("logout").addEventListener("click", e => {
+      e.preventDefault();
+      signOut(auth).then(() => {
+        window.location.replace("login.html");
+      });
     });
   </script>  
   <aside>

@@ -1,12 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <!-- Firebase App (the core Firebase SDK) -->
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<!-- Firebase Auth -->
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <title>Analytics Dashboard</title>
@@ -306,15 +300,10 @@
   </style>
 </head>
 <body>
-  <script>
+  <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-    import {
-      getAuth,
-      onAuthStateChanged,
-      signOut
-    } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
 
-    // 1) Initialize Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyDcacpYTrShmiUcGm8NgXucH6IRNlr3L5E",
       authDomain: "synq-data.firebaseapp.com",
@@ -324,26 +313,23 @@
       appId: "1:666582373055:web:48a69368feb8c16ab52c0a",
       measurementId: "G-2E8MH39H3E"
     };
-      // if user IS logged in, do nothing and let the page render
-      const app  = initializeApp(firebaseConfig);
+
+    // Initialize Firebase & Auth
+    const app  = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    // 2) Gatekeeper: redirect if not logged in
+    // Only this guard remains — no sync fallback
     onAuthStateChanged(auth, user => {
       if (!user) {
-        // Kick out anyone not signed in
+        // If not signed in, redirect immediately
         window.location.replace("login.html");
       }
     });
-
-    // 3) Logout handler
-    document.getElementById("logout").addEventListener("click", e => {
-      e.preventDefault();
-      signOut(auth).then(() => {
-        window.location.replace("login.html");
-      });
-    });
   </script>  
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
   <aside>
     <nav>
       <ul>
@@ -353,7 +339,7 @@
         <li><a href="#"><i class="fas fa-cogs"></i>Settings</a></li>
         <li><a href="#"><i class="fas fa-users"></i>Users</a></li>
         <li><a href="#"><i class="fas fa-bell"></i>Alerts</a></li>
-        <li><a href="login.html" class="text-blue-500 underline text-sm" onclick="localStorage.removeItem('loggedInUser')">Log out</a></li>
+        <li><a href="#" id="logout" class="logout"><i class="fas fa-sign-out-alt"></i>Log out</a></li>
       </ul>
     </nav>
   </aside>
@@ -446,6 +432,17 @@
       
     </div>
   </main>
+  <script type="module">
+    import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+
+    const auth = getAuth(); // same instance
+    document.getElementById("logout").addEventListener("click", e => {
+      e.preventDefault();
+      signOut(auth).then(() => {
+        window.location.replace("login.html");
+      });
+    });
+  </script>
 </body>
 <script>
     $(document).ready(function() {

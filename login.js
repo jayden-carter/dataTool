@@ -2,6 +2,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js";
+import { getStorage } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-storage.js";
 
 // Firebase Configuration (use your own config values)
 const firebaseConfig = {
@@ -18,6 +19,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const auth = getAuth(app);
+const storage = getStorage(app);
 
 // Attach event listener for form submission
 document.getElementById("loginForm").addEventListener("submit", function(event) {

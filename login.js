@@ -1,6 +1,5 @@
-// Import the functions you need from the Firebase SDKs
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-analytics.js";
 
 // Firebase Configuration (use your own config values)
@@ -14,10 +13,18 @@ const firebaseConfig = {
   measurementId: "G-2E8MH39H3E"
 };
 
-// Initialize Firebase using the modular API
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const auth = getAuth(app);
+
+// Check if the user is already logged in when the page loads
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    // User is already logged in, redirect to dashboard
+    window.location.href = "index.html";
+  }
+});
 
 // Attach event listener for form submission
 document.getElementById("loginForm").addEventListener("submit", function(event) {
@@ -45,7 +52,7 @@ document.getElementById("loginForm").addEventListener("submit", function(event) 
       const errorCode = error.code;
       const errorMessage = error.message;
       console.error("Error [" + errorCode + "]: " + errorMessage);
-      // Optionally display the error message on the page by manipulating the DOM
+      // Display the error message on the page
       const errorEl = document.getElementById('error');
       errorEl.innerText = errorMessage;
       errorEl.classList.remove('hidden');

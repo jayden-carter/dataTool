@@ -44,13 +44,15 @@
     #attendance-chart .hour-label { display: flex; align-items: center; justify-content: center; font-size: 0.65rem; color: #333; }
     #attendance-chart .day-label { display: flex; align-items: center; justify-content: center; font-size: 0.75rem; color: #333; }
     #attendance-chart .heat-cell { background: #f0f0f0; }
-    #revenue-report canvas { width: 100% !important; max-height: 300px; margin-top: 1rem; }
+    #weeklyRevenueChart { width: 100% !important; max-height: 300px; margin-top: 1rem; }
     .top-items { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-top: 1rem; }
     .item-card { background: rgba(255, 255, 255, 0.25); backdrop-filter: blur(10px); border-radius: 0.5rem; padding: 0.75rem; display: flex; flex-direction: column; align-items: flex-start; }
     .item-card .item-name { font-size: 1rem; font-weight: 600; color: #333; }
     .item-card .bar-wrapper { width: 100%; background: rgba(255, 255, 255, 0.5); border-radius: 5px; height: 8px; overflow: hidden; margin: 0.5rem 0; }
     .item-card .bar { height: 100%; background: purple; border-radius: 5px; }
     .item-card .count { font-size: 0.9rem; color: #333; }
+    #week-change-container div { margin: 0.5rem 0; }
+    #top-employees-container div { margin: 0.5rem 0; }
     /* Loading state styles */
     #loading { display: flex; justify-content: center; align-items: center; height: 100vh; color: white; }
     #content { display: none; }
@@ -129,7 +131,7 @@
               <div class="card" id="growth">
                 <i class="fas fa-chart-growth"></i>
                 <div class="card-content">
-                  <span class="label">Growth</span>
+                  <span class="label">Week-to-Week Change</span>
                   <span class="value">–</span>
                   <span class="compare">–</span>
                 </div>
@@ -140,13 +142,21 @@
             <h2>Attendance Report</h2>
             <div id="attendance-chart"></div>
           </section>
-          <section class="section section-container" id="revenue-report">
-            <h2>Revenue Report</h2>
-            <canvas id="revenueChart"></canvas>
+          <section class="section section-container" id="weekly-revenue-report">
+            <h2>Weekly Revenue Report</h2>
+            <canvas id="weeklyRevenueChart"></canvas>
           </section>
           <section class="section section-container" id="top-items-container">
             <h2>Top Selling Items</h2>
             <div class="top-items"></div>
+          </section>
+          <section class="section section-container" id="top-employees-container">
+            <h2>Top Employees by Satisfaction</h2>
+            <div id="top-employees-container"></div>
+          </section>
+          <section class="section section-container" id="week-change-container">
+            <h2>Week-to-Week Change</h2>
+            <div id="week-change-container"></div>
           </section>
         </div>
       </div>

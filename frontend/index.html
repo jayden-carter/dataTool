@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Table Dashboard</title>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f0f0f0;
+      color: #333;
+    }
+    #loading {
+      display: block;
+      margin-top: 50px;
+      font-size: 20px;
+      text-align: center;
+    }
+    #content {
+      display: none;
+      margin-top: 20px;
+    }
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .filter-section {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .filter-section label {
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .filter-section input,
+    .filter-section select {
+      padding: 5px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .stats-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .card {
+      background-color: white;
+      padding: 15px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    .card h3 {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+    .card p {
+      font-size: 16px;
+      color: #555;
+    }
+    .visualization-section {
+      margin-bottom: 20px;
+    }
+    .visualization-options {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 15px;
+      position: relative; /* Ensure context for z-index */
+    }
+    .visualization-options label {
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .visualization-options select {
+      padding: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      min-width: 150px; /* Ensure enough space for options */
+      position: relative; /* Ensure dropdown options can render */
+      z-index: 10; /* Prevent overlap by other elements */
+      -webkit-appearance: menulist; /* Force native dropdown behavior */
+      appearance: menulist; /* Force native dropdown behavior */
+      background-color: white; /* Ensure contrast */
+      cursor: pointer; /* Indicate interactivity */
+    }
+    .visualization-placeholder {
+      background-color: white;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      min-height: 300px;
+      overflow-x: auto;
+    }
+    .visualization-placeholder p {
+      font-size: 16px;
+      color: #777;
+    }
+    .button-section {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: #333;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+    button:hover {
+      background-color: #555;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="loading">Loading...</div>
+  <div id="content">
+    <h1>Dataset Summary</h1>
+
+    <!-- Filter Section -->
+    <div class="filter-section">
+      <label>
+        Start Date:
+        <input type="date" id="startDate" />
+      </label>
+      <label>
+        End Date:
+        <input type="date" id="endDate" />
+      </label>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-cards">
+      <div class="card">
+        <h3>Number of Records</h3>
+        <p id="recordCount">Loading...</p>
+      </div>
+      <div class="card">
+        <h3>Average Value</h3>
+        <p id="avgValue">Total</p>
+      </div>
+      <div class="card">
+        <h3>Unique Items</h3>
+        <p id="uniqueCategories">Total</p>
+      </div>
+    </div>
+
+    <!-- Button Section -->
+    <div class="button-section">
+      <button id="logout">Logout</button>
+      <button onclick="window.location.href='items.html'">Items</button>
+      <button id="refresh">Refresh Data</button>
+    </div>
+
+    <!-- Visualization Section -->
+    <div class="visualization-section">
+      <div class="visualization-options">
+        <label>
+          Visualization:
+          <select id="visualizationType">
+            <option value="table" selected>Data Table</option>
+            <option value="bar">Bar Chart</option>
+            <option value="pie">Pie Chart</option>
+            <option value="box">Box Plot</option>
+            <option value="histogram">Histogram</option>
+            <option value="scatter">Scatter Plot</option>
+            <option value="heatmap">Heatmap</option>
+          </select>
+        </label>
+        <label id="variableLabel" class="hidden">
+          Variable:
+          <select id="variable"></select>
+        </label>
+        <label id="independentLabel" class="hidden">
+          Independent Variable:
+          <select id="independentVariable"></select>
+        </label>
+        <label id="dependentLabel" class="hidden">
+          Dependent Variable:
+          <select id="dependentVariable"></select>
+        </label>
+      </div>
+      <div class="visualization-placeholder" id="visualizationPlaceholder">
+        <p>[Data Table Placeholder]</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script type="module" src="firebaseConfig.js"></script>
+  <script type="module" src="authCheck.js"></script>
+  <script type="module" src="script.js"></script>
+  <script type="module">
+    document.addEventListener('DOMContentLoaded', () => {
+      import('./dataHandler.js').then(({ initializeDataHandler }) => {
+        initializeDataHandler();
+      });
+    });
+  </script>
+</body>
+</html>

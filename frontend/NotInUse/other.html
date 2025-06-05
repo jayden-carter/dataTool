@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analytics Dashboard</title>
+  <!-- Tailwind CSS CDN -->
+  <link href="https://cdn.tailwindcss.com" rel="stylesheet">
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+  <!-- date-fns CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/date-fns@2.30.0/dist/date-fns.min.js"></script>
+  <!-- Chart.js date adapter CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+  <!-- React and ReactDOM CDNs -->
+  <script src="https://cdn.jsdelivr.net/npm/react@17.0.2/umd/react.development.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@17.0.2/umd/react-dom.development.js"></script>
+  <!-- Babel CDN for JSX -->
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.16.4/babel.min.js"></script>
+  <!-- Firebase CDNs (matching version 11.6.0 from firebaseConfig.js) -->
+  <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+  <div id="root"></div>
+  <script type="text/babel">
+    import firebaseConfig from './firebaseConfig.js';
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // Check if user is authenticated
+    auth.onAuthStateChanged((user) => {
+      if (!user) {
+        window.location.href = 'login.html';
+      }
+    });
+
+    // FilterPanel Component
+    const FilterPanel = ({ filters, setFilters }) => {
+      const handleFilterChange = (e) => {
+        setFilters({ ...filters, [e.target.name]: e.target.value });
+      };
+
+      return (
+        <div className="w-64 p-4 bg-gray-200 rounded-lg shadow-md">
+          <h2 className="text-xl font-bold mb-4">Filters</h2>
+          <label className="block mb-2">
+            Start Date:
+            <input
+              type="date"
+              name="startDate"
+              value={filters.startDate}
+              onChange={handleFilterChange}
+              className="w-full p-1 border rounded"
+            />
+          </label>
+          <label className="block mb-2">
+            End Date:
+            <input
+              type="date"
+              name="endDate"
+              value={filters.endDate}
+              onChange={handleFilterChange}
+              className="w-full p-1 border rounded"
+            />
+          </label>
+          <label className="block mb-2">
+            Item:
+            <input
+              type="text"
+              name="item"
+              value={filters.item}
+              onChange={handleFilterChange}
+              className="w-full p-1 border rounded"
+            />
+          </label>
+          <label className="block mb-2">
+            Payment Method:
+            <input
+              type="text"
+              name="paymentMethod"
+              value={filters.paymentMethod}
+              onChange={handleFilterChange}
+              className="w-full p-1 border rounded"
+            />
+          </label>
+          <label className="block mb-2">
+            Weather:
+            <input
+              type="text"
+              name="weather"
+              value={filters.weather}
+              onChange={handleFilterChange}
+              className="w-full p-1 border rounded"
+            />
+          </label>
+          <label className="block mb-2">
+            Employee ID:
+            <input
+              type="number"
+              name="employeeID"
+              value={filters.employeeID}
+              onChange={handleFilterChange}
+              className="w-full p-1 border rounded"
+            />
+          </label>
+          <label className="block mb-2">
+            Special Offers:
+            <select
+              name="specialOffers"
+              value={filters.specialOffers}
+              onChange={handleFilterChange}
+              className="w-full p-1 border rounded"
+            >
+              <option value="">All</option>
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+            </select>
+          </label>
+          <label className="block mb-2">
+            Metric:
+            <select
+              name="metric"
+              value={filters.metric}
+              onChange={handleFilterChange}
+              className="w-full p-1 border rounded"
+            >
+              <option value="totalSales">Total Sales</option>
+              <option value="numberOfOrders">Number of Orders</option>
+              <option value="avgCustomerSatisfaction">Average Customer Satisfaction</option>
+              <option value="quantitySold">Quantity Sold</option>
+              <option value="avgOrderValue">Average Order Value</option>
+            </select>
+          </label>
+          <label className="block mb-2">
+            Visualization:
+            <select
+              name="visualization"
+              value={filters.visualization}
+              onChange={handleFilterChange}
+              className="w-full p-1 border rounded"
+            >
+              <option value="line">Line Chart</option>
+              <option value="bar">Bar Chart</option>
+              <option value="pie">Pie Chart</option>
+              <option value="table">Table</option>
+            </select>
+          </label>
+          {['bar', 'pie'].includes(filters.visualization) && (
+            <label className="block mb-2">
+              Group By:
+              <select
+                name="groupBy"
+                value={filters.groupBy}
+                onChange={handleFilterChange}
+                className="w-full p-1 border rounded"
+              >
+                <option value="Item">Item</option>
+                <option value="PaymentMethod">Payment Method</option>
+                <option value="Weather">Weather</option>
+                <option value="EmployeeID">Employee ID</option>
+              </select>
+            </label>
+          )}
+        </div>
+      );
+    };
+
+    // TableComponent for displaying data in a table
+    const TableComponent = ({ data }) => (
+      <table className="min-w-full bg-white">
+        <thead>
+          <tr>
+            <th className="py-2 px-4 border-b">Group</th>
+            <th className="py-2 px-4 border-b">Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((row, index) => (
+            <tr key={index}>
+              <td className="py-2 px-4 border-b">{row.x}</td>
+              <td className="py-2 px-4 border-b">{row.y}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
+
+    // ChartComponent for rendering charts using Chart.js
+    const ChartComponent = ({ type, data }) => {
+      const canvasRef = React.useRef(null);
+
+      React.useEffect(() => {
+        if (canvasRef.current) {
+          const ctx = canvasRef.current.getContext('2d');
+          if (type === 'pie') {
+            new Chart(ctx, {
+              type: 'pie',
+              data: {
+                labels: data.map(d => d.x),
+                datasets: [{
+                  data: data.map(d => d.y),
+                  backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                  ],
+                  borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                  ],
+                  borderWidth: 1
+                }]
+              }
+            });
+          } else {
+            new Chart(ctx, {
+              type: type,
+              data: {
+                labels: data.map(d => d.x),
+                datasets: [{
+                  label: type === 'line' ? 'Metric over Time' : 'Metric by Group',
+                  data: data.map(d => d.y),
+                  backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                  borderColor: 'rgba(75, 192, 192, 1)',
+                  borderWidth: 1,
+                  fill: false
+                }]
+              },
+              options: {
+                scales: type === 'line' ? {
+                  x: {
+                    type: 'time',
+                    time: {
+                      unit: 'day'
+                    }
+                  }
+                } : {}
+              }
+            });
+          }
+        }
+      }, [type, data]);
+
+      return <canvas ref={canvasRef} width="400" height="400"></canvas>;
+    };
+
+    // Visualization Component to choose between chart or table
+    const Visualization = ({ type, data }) => {
+      if (type === 'table') {
+        return <TableComponent data={data} />;
+      } else {
+        return <ChartComponent type={type} data={data} />;
+      }
+    };
+
+    // AnalyticsDashboard Component
+    const AnalyticsDashboard = () => {
+      const [filters, setFilters] = React.useState({
+        startDate: '',
+        endDate: '',
+        item: '',
+        paymentMethod: '',
+        weather: '',
+        employeeID: '',
+        specialOffers: '',
+        metric: 'totalSales',
+        visualization: 'bar',
+        groupBy: 'Item'
+      });
+      const [data, setData] = React.useState([]);
+      const [loading, setLoading] = React.useState(false);
+
+      React.useEffect(() => {
+        const fetchData = async () => {
+          setLoading(true);
+          let q = db.collection('transactions');
+          if (filters.startDate) q = q.where('Date', '>=', filters.startDate);
+          if (filters.endDate) q = q.where('Date', '<=', filters.endDate);
+          if (filters.item) q = q.where('Item', '==', filters.item);
+          if (filters.paymentMethod) q = q.where('PaymentMethod', '==', filters.paymentMethod);
+          if (filters.weather) q = q.where('Weather', '==', filters.weather);
+          if (filters.employeeID) q = q.where('EmployeeID', '==', Number(filters.employeeID));
+          if (filters.specialOffers) q = q.where('SpecialOffers', '==', filters.specialOffers);
+
+          try {
+            const snapshot = await q.get();
+            const rawData = snapshot.docs.map(doc => doc.data());
+            const effectiveGroupBy = filters.visualization === 'line' ? 'Date' : filters.groupBy;
+            const processed = processData(rawData, filters.metric, effectiveGroupBy);
+            setData(processed);
+          } catch (error) {
+            console.error('Error fetching data:', error);
+            setData([]);
+          }
+          setLoading(false);
+        };
+        fetchData();
+      }, [filters]);
+
+      const processData = (rawData, metric, groupBy) => {
+        if (!groupBy) {
+          let value;
+          switch (metric) {
+            case 'totalSales':
+              value = rawData.reduce((sum, d) => sum + d.Total, 0);
+              break;
+            case 'numberOfOrders':
+              value = rawData.length;
+              break;
+            case 'avgCustomerSatisfaction':
+              value = rawData.length > 0 ? rawData.reduce((sum, d) => sum + d.CustomerSatisfaction, 0) / rawData.length : 0;
+              break;
+            case 'quantitySold':
+              value = rawData.reduce((sum, d) => sum + d.Quantity, 0);
+              break;
+            case 'avgOrderValue':
+              value = rawData.length > 0 ? rawData.reduce((sum, d) => sum + d.Total, 0) / rawData.length : 0;
+              break;
+            default:
+              value = 0;
+          }
+          return [{ x: 'Overall', y: value }];
+        } else {
+          const grouped = rawData.reduce((acc, curr) => {
+            const key = curr[groupBy];
+            if (!acc[key]) {
+              acc[key] = { count: 0, total: 0, satisfactionSum: 0, quantity: 0 };
+            }
+            acc[key].count += 1;
+            acc[key].total += curr.Total;
+            acc[key].satisfactionSum += curr.CustomerSatisfaction;
+            acc[key].quantity += curr.Quantity;
+            return acc;
+          }, {});
+          return Object.keys(grouped).map(key => {
+            let value;
+            switch (metric) {
+              case 'totalSales':
+                value = grouped[key].total;
+                break;
+              case 'numberOfOrders':
+                value = grouped[key].count;
+                break;
+              case 'avgCustomerSatisfaction':
+                value = grouped[key].count > 0 ? grouped[key].satisfactionSum / grouped[key].count : 0;
+                break;
+              case 'quantitySold':
+                value = grouped[key].quantity;
+                break;
+              case 'avgOrderValue':
+                value = grouped[key].count > 0 ? grouped[key].total / grouped[key].count : 0;
+                break;
+              default:
+                value = 0;
+            }
+            return { x: key, y: value };
+          });
+        }
+      };
+
+      return (
+        <div className="flex">
+          <FilterPanel filters={filters} setFilters={setFilters} />
+          <div className="flex-grow p-4">
+            {loading ? (
+              <p className="text-center">Loading...</p>
+            ) : data.length > 0 ? (
+              <Visualization type={filters.visualization} data={data} />
+            ) : (
+              <p className="text-center">No data available for the selected filters.</p>
+            )}
+          </div>
+        </div>
+      );
+    };
+
+    // Render the AnalyticsDashboard
+    ReactDOM.render(<AnalyticsDashboard />, document.getElementById('root'));
+  </script>
+</body>
+</html>

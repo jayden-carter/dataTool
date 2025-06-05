@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Items - Best Selling</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 20px;
+      background-color: #f0f0f0;
+    }
+    h1 {
+      color: #333;
+    }
+    #loading {
+      font-size: 20px;
+    }
+    #content {
+      display: none;
+    }
+    canvas {
+      max-width: 600px;
+      margin: 20px auto;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div id="loading">Loading...</div>
+  <div id="content">
+    <h1>Best Selling Items</h1>
+    <canvas id="itemsChart" width="400" height="400"></canvas>
+    <button id="logout">Logout</button>
+  </div>
+  <script type="module" src="firebaseConfig.js"></script>
+  <script type="module" src="authCheck.js"></script>
+  <script type="module">
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+    import { auth } from './firebaseConfig.js';
+    import { signOut } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+
+    // Initialize Firestore
+    const db = getFirestore();
+
+    // Fetch and display item data
+    async function fetchItemsData() {
+      console.log("Fetching items data...");
+      try {
+        const querySnapshot = await getDocs(collection(db, "main"));
+        const itemCounts = {};
+
+        querySnapshot.forEach((doc) => {
+          const item = doc.data().Item;
+          if (item) {
+            itemCounts[item] = (itemCounts[item] || 0) + 1;
+          }
+        });
+
+        const labels = Object.keys(itemCounts);
+        const data = Object.values(itemCounts);
+
+        console.log("Items data:", { labels, data });
+
+        const ctx = document.getElementById('itemsChart').getContext('2d');
+        new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Number of Times Sold',
+              data: data,
+              backgroundColor: 'rgba(75, 192, 192, 0.2)',
+              borderColor: 'rgba(75, 192, 192, 1)',
+              borderWidth: 1
+            }]
+          },
+          options: {
+            scales: {
+              y: {
+                beginAtZero: true
+              }
+            }
+          }
+        });
+      } catch (error) {
+        console.error("Error fetching data in items.html:", error.message);
+        alert("Error loading items data");
+      }
+    }
+
+    // Load chart data once the page is ready
+    document.addEventListener('DOMContentLoaded', () => {
+      fetchItemsData();
+    });
+
+    // Logout functionality
+    document.getElementById('logout').addEventListener('click', () => {
+      console.log("Logout button clicked in items.html");
+      signOut(auth)
+        .then(() => {
+          console.log("User signed out successfully from items.html");
+          window.location.href = 'login.html';
+        })
+        .catch((error) => {
+          console.error("Logout error in items.html:", error.message);
+        });
+    });
+  </script>
+</body>
+</html>
